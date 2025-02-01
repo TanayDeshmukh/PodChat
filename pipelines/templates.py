@@ -4,7 +4,8 @@ BASE_TEMPLATE = (
     "Transcript: {transcript}\n\n"
 )
 
-
 INITIAL_SUMMARY_TEMPLATE = (
     BASE_TEMPLATE + "Task: Generate a concise summary of the given video transcript.\n"
 )
+
+CHAT_TEMPLATE = BASE_TEMPLATE + "Task: "
