@@ -1,3 +1,5 @@
+import json
+import os.path
 from typing import Optional, List
 
 from pydantic import BaseModel
@@ -22,4 +24,16 @@ class YoutubeVideo(BaseModel):
         self.transcript_sections, self.transcript = get_transcript(
             video_id=self.video_id
         )
-        self.summary = run_initial_summary_pipeline(transcript=self.transcript)
+
+        # self.summary = run_initial_summary_pipeline(transcript=self.transcript)
+
+        # TODO uncomment the above line and remove the next lines. This code is just for testing purpose.
+        cache_file = "cache.json"
+        if os.path.exists(cache_file):
+            with open(cache_file, "r") as f:
+                summary_data = json.load(f)
+            self.summary = Summary.model_construct(**summary_data)
+        else:
+            self.summary = run_initial_summary_pipeline(transcript=self.transcript)
+            with open(cache_file, "w") as f:
+                f.write(self.summary.model_dump_json())

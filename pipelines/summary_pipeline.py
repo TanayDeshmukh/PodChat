@@ -1,10 +1,9 @@
 import streamlit as st
-from langchain_core.prompts import PromptTemplate, SystemMessagePromptTemplate
+from langchain_core.prompts import PromptTemplate
 
 from generator.model import get_llm, get_llm_with_structured_output
 from pipelines.prompts import get_prompt_template
 from pipelines.schemas import Summary
-from pipelines.templates import INITIAL_SUMMARY_TEMPLATE
 
 
 def build_summarization_pipeline():

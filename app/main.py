@@ -1,9 +1,11 @@
 import time
 
 import streamlit as st
+from langchain_core.messages import HumanMessage, AIMessage
 from streamlit.runtime.media_file_storage import MediaFileStorageError
 
 from data.data_classes import YoutubeVideo
+from pipelines.chat_pipeline import run_chat_pipeline
 
 
 def stream_response(response: str):
@@ -54,17 +56,19 @@ def run_app():
                 st.markdown(initial_system_message)
 
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        role = "user" if isinstance(message, HumanMessage) else "assistant"
+        with st.chat_message(role):
+            st.markdown(message.content)
 
-    if prompt := st.chat_input("What would you like to know?"):
-        st.chat_message("user").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    if query := st.chat_input("What would you like to know?"):
+        st.chat_message("user").markdown(query)
 
-        response = f"Echo: {prompt}"
+        response = run_chat_pipeline(query)
+        st.session_state.messages.append(HumanMessage(query))
+
         with st.chat_message("assistant"):
-            st.markdown(response)
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            st.markdown(stream_response(response))
+        st.session_state.messages.append(AIMessage(response))
 
 
 if __name__ == "__main__":
