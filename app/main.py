@@ -27,7 +27,8 @@ def run_app():
                 st.video(youtube_url)
                 with st.spinner("Processing..."):
                     st.session_state.youtube_video = YoutubeVideo(url=youtube_url)
-                    st.session_state.youtube_summary_displayed = False
+                    if "youtube_summary_displayed" not in st.session_state:
+                        st.session_state.youtube_summary_displayed = False
             except MediaFileStorageError as m:
                 st.error(f"Invalid {youtube_url=}")
 
@@ -35,23 +36,22 @@ def run_app():
         st.session_state.messages = []
     if "youtube_video" not in st.session_state:
         st.session_state.youtube_video = None
-    if "youtube_summary_displayed" not in st.session_state:
-        st.session_state.youtube_summary_displayed = False
 
-    if (
-        st.session_state.youtube_video
-        and not st.session_state.youtube_summary_displayed
-    ):
+    if st.session_state.youtube_video:
         st.title(st.session_state.youtube_video.summary.title)
         initial_system_message = (
             st.session_state.youtube_video.summary.summary
             + "\n"
             + "Would you like to know anything more about this topic?"
         )
-        with st.chat_message("assistant"):
-            st.write_stream(stream_response(initial_system_message))
 
-        st.session_state.youtube_summary_displayed = True
+        if not st.session_state.youtube_summary_displayed:
+            with st.chat_message("assistant"):
+                st.write_stream(stream_response(initial_system_message))
+            st.session_state.youtube_summary_displayed = True
+        else:
+            with st.chat_message("assistant"):
+                st.markdown(initial_system_message)
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
